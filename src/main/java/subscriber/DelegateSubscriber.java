@@ -3,10 +3,11 @@ package subscriber;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
-public class DelegateSubscriber implements Subscriber<Integer> {
-    private final Subscriber<? super Integer> sub;
+public class DelegateSubscriber<T, R> implements Subscriber<T> {
+    @SuppressWarnings("rawtypes")
+    private final Subscriber sub;
 
-    public DelegateSubscriber(Subscriber<? super Integer> sub) {
+    public DelegateSubscriber(Subscriber<? super R> sub) {
         this.sub = sub;
     }
 
@@ -16,7 +17,8 @@ public class DelegateSubscriber implements Subscriber<Integer> {
     }
 
     @Override
-    public void onNext(Integer item) {
+    public void onNext(T item) {
+        //noinspection unchecked
         this.sub.onNext(item);
     }
 

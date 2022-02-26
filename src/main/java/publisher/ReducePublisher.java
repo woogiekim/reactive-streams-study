@@ -6,21 +6,17 @@ import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.function.BiFunction;
 
-public class ReducePublisher implements Publisher<Integer> {
-    private final Publisher<Integer> pub;
+public class ReducePublisher<T, R> implements Publisher<R> {
+    private final Publisher<T> pub;
 
-    private int init;
-    private BiFunction<Integer, Integer, Integer> biFunction;
+    private R init;
+    private BiFunction<R, T, R> biFunction;
 
-    private ReducePublisher(Publisher<Integer> pub) {
+    public ReducePublisher(Publisher<T> pub) {
         this.pub = pub;
     }
 
-    public static ReducePublisher of(Publisher<Integer> pub) {
-        return new ReducePublisher(pub);
-    }
-
-    public ReducePublisher reduce(int init, BiFunction<Integer, Integer, Integer> biFunction) {
+    public ReducePublisher<T, R> reduce(R init, BiFunction<R, T, R> biFunction) {
         this.init = init;
         this.biFunction = biFunction;
 
@@ -28,12 +24,12 @@ public class ReducePublisher implements Publisher<Integer> {
     }
 
     @Override
-    public void subscribe(Subscriber<? super Integer> sub) {
-        pub.subscribe(new DelegateSubscriber(sub) {
-            private int result = init;
+    public void subscribe(Subscriber<? super R> sub) {
+        pub.subscribe(new DelegateSubscriber<T, R>(sub) {
+            private R result = init;
 
             @Override
-            public void onNext(Integer item) {
+            public void onNext(T item) {
                 result = biFunction.apply(result, item);
             }
 

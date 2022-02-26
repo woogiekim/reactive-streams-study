@@ -4,19 +4,15 @@ import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
-public class IterablePublisher implements Publisher<Integer> {
-    private final Iterable<Integer> iter;
+public class IterablePublisher<E> implements Publisher<E> {
+    private final Iterable<E> iter;
 
-    private IterablePublisher(Iterable<Integer> iter) {
+    public IterablePublisher(Iterable<E> iter) {
         this.iter = iter;
     }
 
-    public static IterablePublisher of(Iterable<Integer> iter) {
-        return new IterablePublisher(iter);
-    }
-
     @Override
-    public void subscribe(Subscriber<? super Integer> sub) {
+    public void subscribe(Subscriber<? super E> sub) {
         sub.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {

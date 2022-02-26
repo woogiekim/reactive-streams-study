@@ -2,40 +2,29 @@ package publisher;
 
 import subscriber.DelegateSubscriber;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Flow.Publisher;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
-public class MapPublisher implements Publisher<Integer> {
-    private final Publisher<Integer> pub;
-    private Function<Integer, Integer> function;
+public class MapPublisher<T, R> implements Publisher<R> {
+    private final Publisher<T> pub;
+    private Function<T, R> function;
 
-    private MapPublisher(Publisher<Integer> pub) {
+    public MapPublisher(Publisher<T> pub) {
         this.pub = pub;
     }
 
-    public static MapPublisher of(Publisher<Integer> pub) {
-        return new MapPublisher(pub);
-    }
-
-    public MapPublisher doOnNext(Function<Integer, Integer> function) {
-        if (this.function == null) {
-            this.function = function;
-        }
-
-        this.function = this.function.compose(function);
+    public MapPublisher<T, R> doOnNext(Function<T, R> function) {
+        this.function = function;
 
         return this;
     }
 
     @Override
-    public void subscribe(Subscriber<? super Integer> sub) {
-        pub.subscribe(new DelegateSubscriber(sub) {
+    public void subscribe(Subscriber<? super R> sub) {
+        pub.subscribe(new DelegateSubscriber<T, R>(sub) {
             @Override
-            public void onNext(Integer item) {
+            public void onNext(T item) {
                 sub.onNext(function.apply(item));
             }
         });
