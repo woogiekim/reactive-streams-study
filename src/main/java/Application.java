@@ -1,6 +1,7 @@
 import lombok.extern.slf4j.Slf4j;
 import publisher.IterablePublisher;
 import publisher.MapPublisher;
+import publisher.ReducePublisher;
 import publisher.SumPublisher;
 import subscriber.LogSubscriber;
 
@@ -15,12 +16,16 @@ public class Application {
 
         IterablePublisher iterPub = IterablePublisher.of(iter);
 
-        MapPublisher mapPub = MapPublisher.of(iterPub)
+        MapPublisher.of(iterPub)
                 .doOnNext(i -> i * 100)
-                .doOnNext(i -> -i);
-        mapPub.subscribe(LogSubscriber.just());
+                .doOnNext(i -> -i)
+                .subscribe(LogSubscriber.just());
 
-        SumPublisher sumPub = new SumPublisher(iterPub);
-        sumPub.subscribe(LogSubscriber.just());
+        SumPublisher.of(iterPub)
+                .subscribe(LogSubscriber.just());
+
+        ReducePublisher.of(iterPub)
+                .reduce(0, Integer::sum)
+                .subscribe(LogSubscriber.just());
     }
 }
