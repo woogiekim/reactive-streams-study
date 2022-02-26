@@ -1,6 +1,7 @@
 import lombok.extern.slf4j.Slf4j;
 import publisher.IterablePublisher;
 import publisher.MapPublisher;
+import publisher.SumPublisher;
 import subscriber.LogSubscriber;
 
 import java.util.List;
@@ -13,10 +14,13 @@ public class Application {
         List<Integer> iter = Stream.iterate(1, i -> i + 1).limit(10).collect(Collectors.toUnmodifiableList());
 
         IterablePublisher iterPub = IterablePublisher.of(iter);
+
         MapPublisher mapPub = MapPublisher.of(iterPub)
                 .doOnNext(i -> i * 100)
                 .doOnNext(i -> -i);
-
         mapPub.subscribe(LogSubscriber.just());
+
+        SumPublisher sumPub = new SumPublisher(iterPub);
+        sumPub.subscribe(LogSubscriber.just());
     }
 }
